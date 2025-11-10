@@ -39,10 +39,10 @@ public class PlayerController : MonoBehaviour
     private bool canJump;
     private bool isGrounded;
     
+    [Header("Climb")]
+    [SerializeField] private LayerMask climbLayerMask;
 
-    
-   
-    
+    private bool isClimb;
 
     private void Awake()
     {
@@ -58,17 +58,27 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(GameManager.Instance.InventoryUIOpen) return;
+        
         LookInput();
+        
         WalkInput();
+        
         JumpInput();
+        
+        ClimbInput();
     }
 
     private void FixedUpdate()
     {
         Move();
         Jump();
+        Climb();
     }
 
+    
+    
+    
     private void LookInput()
     { 
         //시야 입력
@@ -95,6 +105,7 @@ public class PlayerController : MonoBehaviour
 
     private void JumpInput()
     {
+        if(isClimb) return; 
         //점프키를 입력받고
         bool jumpInput = Input.GetButtonDown("Jump");
         //Debug.Log("jumpInput: " + jumpInput);
@@ -105,6 +116,18 @@ public class PlayerController : MonoBehaviour
 
         //검사
         if (jumpInput && isGrounded) canJump = true;
+    }
+
+    private void ClimbInput()
+    {
+
+        if (CanClimb() && Input.GetMouseButton(0))
+        {
+            isClimb = true;
+        }
+        else isClimb = false;
+        //canClimb && player input시 y축 좌표값 추가
+        //벽타기 중에 점프 불가 -> 점프 매서드에 추가
     }
 
     private bool IsGrounded()
@@ -123,6 +146,17 @@ public class PlayerController : MonoBehaviour
         }
         
         return false;
+    }
+
+    private bool CanClimb()
+    {
+        Ray ray = 
+             new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.forward);
+        bool canClimb = Physics.Raycast(ray, 1f, climbLayerMask);
+        
+        return canClimb;
+
+        //raycast로 벽 검사 && 접촉 여부 검사
     }
 
     private void Move()
@@ -144,5 +178,15 @@ public class PlayerController : MonoBehaviour
         }
         canJump = false;
     }
+
+    private void Climb()
+    {
+        if (isClimb)
+        {
+            Vector3 climbPos = transform.position + Vector3.up * _moveSpeed * Time.deltaTime;
+            transform.position = climbPos;
+        }
+    }
+    
 
 }
