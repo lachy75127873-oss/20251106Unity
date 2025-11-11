@@ -33,7 +33,7 @@ public class PlayerRaycaster : MonoBehaviour
     private void ShowInfoInteraction()
     {
         // UI 열려 있으면 스킵
-        if(GameManager.Instance != null && GameManager.Instance.InventoryUIOpen) return;
+        if(GameManager.Instance != null && GameManager.Instance.InventoryUIOpen) OnLookAwayItem?.Invoke();
         
         //감지
         Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));

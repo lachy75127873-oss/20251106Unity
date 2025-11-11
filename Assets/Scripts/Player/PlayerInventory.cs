@@ -11,6 +11,9 @@ public class PlayerInventory : MonoBehaviour
     private Dictionary<ItemData, int> inventory = new Dictionary<ItemData, int>();
     
     public Dictionary<ItemData, int> Inventory { get { return inventory; } }
+    
+    public event Action<ItemData> OnInventoryChanged;
+    
 
     public void AddItem(ItemData item)
     {
@@ -24,6 +27,8 @@ public class PlayerInventory : MonoBehaviour
             inventory[item] = Mathf.Min(current +1, item.maxStackAmount);
         else
             inventory[item] =current+1;
+        
+        OnInventoryChanged?.Invoke(item);
     }
 
     public void RemoveItem(ItemData item, int amount = 1)
@@ -35,12 +40,7 @@ public class PlayerInventory : MonoBehaviour
         if(left >0) inventory[item] = left;
         else inventory.Remove(item);
         
+        OnInventoryChanged?.Invoke(item);
     }
-
-    public void UpdateInventory()
-    {
-        
-    }
-    
     
 }
