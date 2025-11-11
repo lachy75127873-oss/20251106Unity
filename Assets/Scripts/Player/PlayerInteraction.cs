@@ -46,6 +46,8 @@ public class PlayerInteraction : MonoBehaviour
             Debug.Log("Try Getting item");
             _playerInventory.AddItem(currentItem.itemData ,currentItem.quantity);
             Destroy(currentItem.gameObject);
+            UiManager.Instance.HandleLookAway();
+            
             currentItem = null;
         }
     }

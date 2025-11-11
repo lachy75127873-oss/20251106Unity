@@ -57,7 +57,7 @@ public class UiManager : MonoBehaviour
         interactablesText.gameObject.SetActive(true);
     }
 
-    void HandleLookAway()
+    public void HandleLookAway()
     {
         if(interactablesText == null ) return;
         interactablesText.gameObject.SetActive(false);
