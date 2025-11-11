@@ -44,7 +44,7 @@ public class PlayerInteraction : MonoBehaviour
         if (currentItem && Input.GetKeyDown(KeyCode.E))
         {
             Debug.Log("Try Getting item");
-            _playerInventory.AddItem(currentItem.itemData ,currentItem.quantity);
+            _playerInventory.AddItem(currentItem.itemData);
             Destroy(currentItem.gameObject);
             UiManager.Instance.HandleLookAway();
             

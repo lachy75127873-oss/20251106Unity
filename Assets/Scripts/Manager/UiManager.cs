@@ -63,6 +63,19 @@ public class UiManager : MonoBehaviour
         interactablesText.gameObject.SetActive(false);
         interactablesText.text = "";
     }
+
+    
+    //이벤트를 통해서 UI를 껐다 킴
+    public void HandleInventoryOn()
+    {
+        
+    }
+
+    public void HandleInventoryOff()
+    {
+        
+    }
+    
     
     
 }

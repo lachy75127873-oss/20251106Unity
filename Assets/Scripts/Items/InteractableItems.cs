@@ -5,5 +5,4 @@ using UnityEngine;
 public class InteractableItems : MonoBehaviour
 {
    public ItemData itemData;
-   public int quantity = 1;
 }
