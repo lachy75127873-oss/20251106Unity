@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody _rigidbody;
     private Animator _animator;
+
+    private BoxCollider _col;
     //private PlayerState _playerState;
 
     [Header("Camera Settings, 1 = 1인팅, 그 외 = 3인칭")] 
@@ -37,7 +39,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask groundLayerMask;
     //private float _jumpTimer;
     private bool canJump;
-    private bool isGrounded;
+    private bool isGrounded = true;
     
     [Header("Climb")]
     [SerializeField] private LayerMask climbLayerMask;
@@ -53,6 +55,7 @@ public class PlayerController : MonoBehaviour
         if (_animator == null) Debug.Log("no animator");
         
         Cursor.lockState = CursorLockMode.Locked;
+        _col       = GetComponent<BoxCollider>();
     }
 
     // Update is called once per frame
@@ -108,14 +111,20 @@ public class PlayerController : MonoBehaviour
         if(isClimb) return; 
         //점프키를 입력받고
         bool jumpInput = Input.GetButtonDown("Jump");
-        //Debug.Log("jumpInput: " + jumpInput);
+        if (jumpInput)
+        {
+            Debug.Log("jumpInput: " + jumpInput);
+        }
         
         //지면 검사
+       
         isGrounded = IsGrounded();
-        //Debug.Log("grounded: " + isGrounded);
+        if (isGrounded) Debug.Log("grounded: " + isGrounded);
+        
 
         //검사
         if (jumpInput && isGrounded) canJump = true;
+        if (canJump) Debug.Log("jumpInput: " + canJump);
     }
 
     private void ClimbInput()
@@ -132,21 +141,35 @@ public class PlayerController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Ray[] ray = new Ray[4]
-        {
-            new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
-            new Ray(transform.position + (-transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
-            new Ray(transform.position + (transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down),
-            new Ray(transform.position + (-transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down)
-        };
+        if (_col == null) return false;
 
-        for (int i = 0; i < ray.Length; i++)
-        {
-            if(Physics.Raycast(ray[i],0.9f, groundLayerMask)) return true;
-        }
-        
-        return false;
+        // 콜라이더 바닥 근처에서 바로 아래로 짧게
+        var bounds = _col.bounds;
+        Vector3 origin = new Vector3(bounds.center.x, bounds.min.y + 0.05f, bounds.center.z);
+        float rayLen = 0.15f;
+
+        // 레이어 거르기
+        int mask = groundLayerMask.value & ~(1 << gameObject.layer);
+
+        Debug.DrawRay(origin, Vector3.down * rayLen, Color.yellow);
+        return Physics.Raycast(origin, Vector3.down, rayLen, mask, QueryTriggerInteraction.Ignore);
     }
+    // private bool IsGrounded()
+    // {
+    //     Ray[] ray = new Ray[4]
+    //     {
+    //         new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
+    //         new Ray(transform.position + (-transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
+    //         new Ray(transform.position + (transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down),
+    //         new Ray(transform.position + (-transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down)
+    //     };
+    //
+    //     for (int i = 0; i < ray.Length; i++)
+    //     {
+    //         if(Physics.Raycast(ray[i],0.9f, groundLayerMask)) return true;
+    //     }
+    //     return false;
+    // }
 
     private bool CanClimb()
     {

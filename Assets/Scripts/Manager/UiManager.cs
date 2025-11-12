@@ -36,6 +36,7 @@ public class UiManager : MonoBehaviour
     [Header("description")]
     [SerializeField] private Button UseItemButton;
     [SerializeField] private Button DropItemButton;
+    [SerializeField] private Button EquipItemButton;
 
 
     private bool openInventory =false;
@@ -307,10 +308,27 @@ public class UiManager : MonoBehaviour
     {
         selectedItemName.text = slot.ItemData.displayName;
         selectedItemDescription.text = slot.ItemData.description;
+
+        UseItemButton.gameObject.SetActive(false);
+        EquipItemButton.gameObject.SetActive(false);
         
-        var itemEffectName = slot.ItemData.Consumables[0].itemType;
-        var itemValue =  slot.ItemData.Consumables[0].value;
-        selectedItemEffect.text = $"{itemEffectName} : +{itemValue}";
+        if (slot.ItemData.type == ItemType.Consumable)
+        {
+            var itemEffectName = slot.ItemData.Consumables[0].itemType;
+            var itemValue =  slot.ItemData.Consumables[0].value;
+            selectedItemEffect.text = $"{itemEffectName} : +{itemValue}";
+            
+            UseItemButton.gameObject.SetActive(true);
+        }
+
+        else if (slot.ItemData.type == ItemType.Equipable)
+        {
+            var itemEffectName = slot.ItemData.Equipables[0].equipmentType;
+            var itemValue =  slot.ItemData.Equipables[0].value;
+            selectedItemEffect.text = $"{itemEffectName} : +{itemValue}";
+            
+            EquipItemButton.gameObject.SetActive(true);
+        }
         
     }
     

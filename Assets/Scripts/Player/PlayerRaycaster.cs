@@ -7,7 +7,7 @@ public class PlayerRaycaster : MonoBehaviour
 {
     [Header("Interactables")]
     private Camera _camera;
-    private float _distance = 5f;
+    private float _distance = 1f;
     private InteractableItems lastItem;
     [SerializeField] private LayerMask interactableLayerMask;
     
