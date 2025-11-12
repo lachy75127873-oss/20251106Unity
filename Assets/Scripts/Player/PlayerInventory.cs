@@ -13,7 +13,6 @@ public class PlayerInventory : MonoBehaviour
     public Dictionary<ItemData, int> Inventory { get { return inventory; } }
     
     public event Action<ItemData , int> OnInventoryChanged;
-    
 
     public void AddItem(ItemData item)
     {
@@ -28,19 +27,27 @@ public class PlayerInventory : MonoBehaviour
         else
             inventory[item] =current+1;
         
-        OnInventoryChanged?.Invoke(item,current);
+        int after = inventory[item];
+        
+        OnInventoryChanged?.Invoke(item,after);
     }
 
     public void RemoveItem(ItemData item, int amount = 1)
     {
         //잔여수량 계산
         if(!inventory.TryGetValue(item, out int itemCount)) return;
-        int left = itemCount - amount;
         
-        if(left >0) inventory[item] = left;
-        else inventory.Remove(item);
+        int left = Mathf.Max(itemCount - amount,0);
+        if (left == 0) inventory.Remove(item);
+        else inventory[item] = left;
         
         OnInventoryChanged?.Invoke(item,left);
+    }
+
+    public int GetItemCount(ItemData item)
+    {
+        if(!inventory.TryGetValue(item, out int itemCount)) return 0;
+        return inventory[item];
     }
     
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,14 +26,34 @@ public class UiManager : MonoBehaviour
     [Header("Interactables")]
     [SerializeField] private TextMeshProUGUI interactablesText;
 
+    [Header("SelectedSlot")] 
+    private Slot _selectedSlot;
+
+    [SerializeField] private TextMeshProUGUI selectedItemName;
+    [SerializeField] private TextMeshProUGUI selectedItemDescription;
+    [SerializeField] private TextMeshProUGUI selectedItemEffect;
+    
+    [Header("description")]
+    [SerializeField] private Button UseItemButton;
+    [SerializeField] private Button DropItemButton;
+
+
     private bool openInventory =false;
     private PlayerInventory playerInv;
+    private PlayerCondition condition;
     
     private struct SlotView
     {
         public GameObject go;
         public Image icon;
         public TextMeshProUGUI countText;
+    }
+    private void OnEnable()
+    {
+       PlayerRaycaster.OnLookAtItem += HandleLookAtItem;
+       PlayerRaycaster.OnLookAwayItem += HandleLookAway;
+      
+       
     }
 
     private void Start()
@@ -41,21 +62,33 @@ public class UiManager : MonoBehaviour
             else Destroy(gameObject);
 
             playerInv = CharacterManager.Instance.Player.playerInventory;
+            condition = CharacterManager.Instance.Player.playerCondition;
+            
+            playerInv.OnInventoryChanged += HandleChangeItem;
+
+            if (UseItemButton)
+            {
+                UseItemButton.onClick.RemoveListener(OnClickUse);
+                UseItemButton.onClick.AddListener(OnClickUse);
+            }
+
+            if (DropItemButton)
+            {
+                DropItemButton.onClick.RemoveListener(OnClickDrop);
+                DropItemButton.onClick.AddListener(OnClickDrop);
+            }
     }
     
     
-    private void OnEnable()
-    {
-       PlayerRaycaster.OnLookAtItem += HandleLookAtItem;
-       PlayerRaycaster.OnLookAwayItem += HandleLookAway;
-       playerInv.OnInventoryChanged += HandleChangeItem;
-    }
 
     private void OnDisable()
     {
         PlayerRaycaster.OnLookAtItem -= HandleLookAtItem;
         PlayerRaycaster.OnLookAwayItem -= HandleLookAway;
         playerInv.OnInventoryChanged -= HandleChangeItem;
+        
+        UseItemButton.onClick.RemoveListener(OnClickUse);
+        DropItemButton.onClick.RemoveListener(OnClickDrop);
     }
     
     
@@ -68,10 +101,6 @@ public class UiManager : MonoBehaviour
         
     }
     
-    
-    
-    
-
     void SetAim()
     {
         if (!openInventory) aimImage.SetActive(true);
@@ -80,7 +109,6 @@ public class UiManager : MonoBehaviour
 
     void OnOffInventory()
     {
-        Debug.Log("OnOffInventory");
         if (Input.GetKeyDown(KeyCode.Tab))
         { ;
             Debug.Log("Tab");
@@ -182,8 +210,13 @@ public class UiManager : MonoBehaviour
         
         //슬롯 변수 준비
         var go = Instantiate(slotPrefab, inventoryPanelTransform);
+        var slot = go.GetComponent<Slot>();
+        
         var icon = go.GetComponentInChildren<Image>(true);
         var countText = go.GetComponentInChildren<TextMeshProUGUI>(true);
+        
+        //슬롯에 정보 주입
+        slot.SetUp(item, playerInv.GetItemCount(item), OnSlotClicked);
         
         //캐시데이터 갱신
         var view = new SlotView { go = go, icon = icon, countText = countText };
@@ -206,62 +239,80 @@ public class UiManager : MonoBehaviour
         slots.Remove(item);
     }
     
-    //슬롯UI
+    //슬롯UI 갱신
     private void UpdateSlotsUI(SlotView view , ItemData itemData, int newCount)
     {
         if(view.icon) view.icon.sprite = itemData.icon;
         if (view.countText) view.countText.text = newCount > 1 ? newCount.ToString() : "";
-        if (view.go) view.go.SetActive(true);
+        if (view.go)
+        {
+            var slot = view.go.GetComponent<Slot>();
+            slot.UpdateCount(newCount);//슬롯 정보 업데이트
+            
+            view.go.SetActive(true);
+        }
     }
-    
-    
 
-    void UpdateInventory()
+    private void OnSlotClicked(Slot slot)
     {
-        Debug.Log("UpdateInventory");
+        if (_selectedSlot != null) _selectedSlot.SetSelected(false); //선택된 버튼이 있을 경우 이를 해제
+        _selectedSlot =  slot;
+        slot.SetSelected(true);
+        ShowItemInfo(slot);
     }
-    
-    
-    public void ArrangeSlots()
-    {
-        Debug.Log("ArrangeSlots");
-        int lastItemAmount = 0;
-        int curItemsType = itemsType;
 
-        var inv =(CharacterManager.Instance.Player.playerInventory.Inventory);
-        lastItemAmount = inv.Count;
-        
-        Debug.Log(lastItemAmount);
-        
-        //음수 방지최대 아이템 종류 초과 방지
-        if (lastItemAmount <= 0 || lastItemAmount >maxItemType)
+    public void OnClickUse()
+    {
+        if (!_selectedSlot) return;
+        Debug.Log("on click");
+
+        var item = _selectedSlot.ItemData;
+       
+        if (item.type == ItemType.Consumable)
         {
-            Debug.Log("Number error"); 
-            return;
-        }
-        
-        //아이템 종류의 수가 변할 때 프리팹 수에 변화를 준다.
-        if(lastItemAmount == curItemsType) return;
-        if (curItemsType < lastItemAmount)
-        {
-            for (int i = 0; i < lastItemAmount - curItemsType; i++)
+            var effect = item.Consumables[0].itemType;
+            var value = item.Consumables[0].value;
+            switch (effect)
             {
-                Instantiate(slotPrefab, inventoryPanelTransform);
+                case ConsumableType.Health:
+                    condition.HealHealth(value);
+                    break;
+                case ConsumableType.Stamina:
+                    condition.HealStamina(value);
+                    break;
+                case ConsumableType.Hunger:
+                    condition.HealHunger(value);
+                    break;
+                case ConsumableType.Speed:
+                    condition.SpeedUp(value);
+                    break;
+                case ConsumableType.Jump:
+                    condition.JumpUp(value);
+                    break;
+                default:
+                    break;
             }
+            playerInv.RemoveItem(item,1);
         }
-        else
-        {
-            int toRemove = curItemsType - lastItemAmount;
-            for (int k = 0; k < toRemove; k++)
-            {
-                int lastIndex = inventoryPanelTransform.childCount - 1;
-                Destroy(inventoryPanelTransform.GetChild(lastIndex).gameObject);
-            }
-        }
-        itemsType = lastItemAmount;
+    }
+
+    public void OnClickDrop()
+    {
+        if (_selectedSlot == null) return;
+        var item = _selectedSlot.ItemData;
+        playerInv.RemoveItem(item, 1);
+    }
+
+    private void ShowItemInfo(Slot slot)
+    {
+        selectedItemName.text = slot.ItemData.displayName;
+        selectedItemDescription.text = slot.ItemData.description;
+        
+        var itemEffectName = slot.ItemData.Consumables[0].itemType;
+        var itemValue =  slot.ItemData.Consumables[0].value;
+        selectedItemEffect.text = $"{itemEffectName} : +{itemValue}";
         
     }
-    
     
     
     

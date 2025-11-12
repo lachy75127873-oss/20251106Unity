@@ -13,7 +13,9 @@ public enum ConsumableType
 {
     Hunger,
     Stamina,
-    Health
+    Health,
+    Speed,
+    Jump
 }
 
 [Serializable]
@@ -39,6 +41,7 @@ public class ItemData :ScriptableObject
 
     [Header("Consumable")] 
     public ItemDataConsumable[] Consumables;
+    
   
     [Header("Equip")]
     public GameObject equipPrefab;

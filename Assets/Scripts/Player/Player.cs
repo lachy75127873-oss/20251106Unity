@@ -18,10 +18,10 @@ public class Player : MonoBehaviour
         playerController = GetComponent<PlayerController>() ?? gameObject.AddComponent<PlayerController>();
         playerInventory = GetComponent<PlayerInventory>() ?? gameObject.AddComponent<PlayerInventory>();
         myRaycaster = GetComponent<PlayerRaycaster>() ?? gameObject.AddComponent<PlayerRaycaster>();
-
         //CharacterManager.Instance.Player = this; 등록 방식 변경
-        CharacterManager.Instance.RegisterPlayer(this);
+        CharacterManager.Instance.RegisterPlayer(this); 
+        
+        
     }
-
     
 }
