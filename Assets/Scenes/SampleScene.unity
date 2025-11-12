@@ -1811,7 +1811,6 @@ GameObject:
   - component: {fileID: 1058180366}
   - component: {fileID: 1058180368}
   - component: {fileID: 1058180367}
-  - component: {fileID: 1058180369}
   m_Layer: 5
   m_Name: Inventory
   m_TagString: Untagged
@@ -1880,20 +1879,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1058180365}
   m_CullTransparentMesh: 1
---- !u!114 &1058180369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1058180365}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2479f759add1749d4bea6318f10eeea8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _playerInventory: {fileID: 0}
-  NullSlot: {fileID: 1298665062661421883, guid: 93a72433f429c4aa28bcaafd880ae224, type: 3}
 --- !u!1 &1152952843
 GameObject:
   m_ObjectHideFlags: 0
@@ -2803,7 +2788,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1609266234}
-  - component: {fileID: 1609266233}
+  - component: {fileID: 1609266235}
   m_Layer: 0
   m_Name: UiManager
   m_TagString: Untagged
@@ -2811,7 +2796,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1609266233
+--- !u!4 &1609266234
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1609266232}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1609266235
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2828,21 +2828,6 @@ MonoBehaviour:
   inventoryPanelTransform: {fileID: 1655262837}
   slotPrefab: {fileID: 1298665062661421883, guid: 93a72433f429c4aa28bcaafd880ae224, type: 3}
   interactablesText: {fileID: 2062831277}
---- !u!4 &1609266234
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1609266232}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1642360956
 GameObject:
   m_ObjectHideFlags: 0

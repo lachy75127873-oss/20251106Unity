@@ -90,6 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemImage: {fileID: 0}
+  quantityText: {fileID: 2829010663006019042}
 --- !u!1 &7187363524725982159
 GameObject:
   m_ObjectHideFlags: 0

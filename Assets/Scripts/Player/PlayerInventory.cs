@@ -6,13 +6,13 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    PlayerInventory _playerInventory{get;set;}
+    private PlayerInventory _playerInventory;
     
     private Dictionary<ItemData, int> inventory = new Dictionary<ItemData, int>();
     
     public Dictionary<ItemData, int> Inventory { get { return inventory; } }
     
-    public event Action<ItemData> OnInventoryChanged;
+    public event Action<ItemData , int> OnInventoryChanged;
     
 
     public void AddItem(ItemData item)
@@ -28,7 +28,7 @@ public class PlayerInventory : MonoBehaviour
         else
             inventory[item] =current+1;
         
-        OnInventoryChanged?.Invoke(item);
+        OnInventoryChanged?.Invoke(item,current);
     }
 
     public void RemoveItem(ItemData item, int amount = 1)
@@ -40,7 +40,7 @@ public class PlayerInventory : MonoBehaviour
         if(left >0) inventory[item] = left;
         else inventory.Remove(item);
         
-        OnInventoryChanged?.Invoke(item);
+        OnInventoryChanged?.Invoke(item,left);
     }
     
 }

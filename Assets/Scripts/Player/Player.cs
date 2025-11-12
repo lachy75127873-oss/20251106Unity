@@ -10,20 +10,17 @@ public class Player : MonoBehaviour
    public PlayerInventory playerInventory { get; private set; }
    public PlayerRaycaster myRaycaster { get; private set; }                 
 
-    public ItemData itemData;
+    //public ItemData itemData;
 
     private void Awake()
     {
-        playerCondition = GetComponent<PlayerCondition>();
-        if (playerCondition == null) playerCondition = gameObject.AddComponent<PlayerCondition>();
-        playerController = GetComponent<PlayerController>();
-        if (playerController == null) playerController = gameObject.AddComponent<PlayerController>();
-        playerInventory = GetComponent<PlayerInventory>();
-        if (playerInventory == null) playerInventory = gameObject.AddComponent<PlayerInventory>();
-        myRaycaster = GetComponent<PlayerRaycaster>();
-        if (myRaycaster == null) myRaycaster = gameObject.AddComponent<PlayerRaycaster>();
+        playerCondition = GetComponent<PlayerCondition>()?? gameObject.AddComponent<PlayerCondition>();
+        playerController = GetComponent<PlayerController>() ?? gameObject.AddComponent<PlayerController>();
+        playerInventory = GetComponent<PlayerInventory>() ?? gameObject.AddComponent<PlayerInventory>();
+        myRaycaster = GetComponent<PlayerRaycaster>() ?? gameObject.AddComponent<PlayerRaycaster>();
 
-        CharacterManager.Instance.Player = this;
+        //CharacterManager.Instance.Player = this; 등록 방식 변경
+        CharacterManager.Instance.RegisterPlayer(this);
     }
 
     

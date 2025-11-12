@@ -15,13 +15,9 @@ public class CharacterManager : MonoBehaviour
             return instance;
         }
     }
-
-    public Player Player
-    {
-        get { return _player;}
-        set {_player = value;}
-    }
-    private Player _player;
+    
+    public Player Player{get;set;}
+    public System.Action<Player> OnPlayerReady; // awake 순서 정렬용
 
     private void Awake()
     {
@@ -38,4 +34,11 @@ public class CharacterManager : MonoBehaviour
             }
         }
     }
+    
+    public void RegisterPlayer(Player player)
+    {
+        Player = player;
+        OnPlayerReady?.Invoke(player);
+    }
+    
 }
