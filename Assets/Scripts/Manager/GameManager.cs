@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance {get {return instance;}}
     
     public bool InventoryUIOpen {get; private set;}
+    public bool InformationOpen {get; private set;}
     
 
     private void Awake()
@@ -20,8 +21,12 @@ public class GameManager : MonoBehaviour
     public void Inventory(bool openInventory)
     {
         InventoryUIOpen = openInventory;
-        if(openInventory)Time.timeScale = 0;
-        else Time.timeScale = 1;
+        // if(openInventory)Time.timeScale = 0;
+        // else Time.timeScale = 1;
+    }
+    public void Info(bool oi)
+    {
+        InformationOpen = oi;
     }
     
 }

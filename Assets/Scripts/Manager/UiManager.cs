@@ -18,10 +18,18 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel;
     [SerializeField] private Transform inventoryPanelTransform;
     [SerializeField]private GameObject slotPrefab;
-    
     private readonly Dictionary<ItemData, SlotView> slots = new (); //UI갱신용 캐시 dictionary
     private int maxItemType = 12;
     private int itemsType = 0;
+    
+    [Header("StatUI")]
+    [SerializeField] private Slider healthSlider;
+    [SerializeField] private Slider staminaSlider;
+    [SerializeField] private Slider hungerSlider;
+    [SerializeField] private float tweenDuration = 0.25f; // 지속 시간(초)
+    [SerializeField] private AnimationCurve ease = AnimationCurve.EaseInOut(0,0,1,1);
+    private Coroutine _hTween, _sTween, _huTween;
+    
     
     [Header("Interactables")]
     [SerializeField] private TextMeshProUGUI interactablesText;
@@ -78,6 +86,15 @@ public class UiManager : MonoBehaviour
                 DropItemButton.onClick.RemoveListener(OnClickDrop);
                 DropItemButton.onClick.AddListener(OnClickDrop);
             }
+
+            if (EquipItemButton)
+            {
+                EquipItemButton.onClick.RemoveListener(OnClickEquip);
+                EquipItemButton.onClick.AddListener(OnClickEquip);
+            }
+            
+            condition.NotifyUI();
+            
     }
     
     
@@ -90,6 +107,7 @@ public class UiManager : MonoBehaviour
         
         UseItemButton.onClick.RemoveListener(OnClickUse);
         DropItemButton.onClick.RemoveListener(OnClickDrop);
+        EquipItemButton.onClick.RemoveListener(OnClickEquip);
     }
     
     
@@ -104,8 +122,50 @@ public class UiManager : MonoBehaviour
     
     void SetAim()
     {
-        if (!openInventory) aimImage.SetActive(true);
+        if (!openInventory&&! GameManager.Instance.InformationOpen) aimImage.SetActive(true);
         else aimImage.SetActive(false);
+    }
+
+    public void UpdateStatUI(float health01, float stamina01, float hunger01)
+    {
+        // 각 슬라이더마다 기존 코루틴 중단 후 새로 시작
+        if (healthSlider)
+        {
+            if (_hTween != null) StopCoroutine(_hTween);
+            _hTween = StartCoroutine(TweenSlider(healthSlider, health01));
+        }
+        if (staminaSlider)
+        {
+            if (_sTween != null) StopCoroutine(_sTween);
+            _sTween = StartCoroutine(TweenSlider(staminaSlider, stamina01));
+        }
+        if (hungerSlider)
+        {
+            if (_huTween != null) StopCoroutine(_huTween);
+            _huTween = StartCoroutine(TweenSlider(hungerSlider, hunger01));
+        }
+    }
+    
+    private IEnumerator TweenSlider(Slider slider, float to)
+    {
+        float from = slider.value;
+        float t = 0f;
+        
+        if (Mathf.Approximately(from, to))
+        {
+            slider.value = to;
+            yield break;
+        }
+
+        while (t < tweenDuration)
+        {
+            t += Time.deltaTime;
+            float u = ease != null ? ease.Evaluate(Mathf.Clamp01(t / tweenDuration))
+                : Mathf.Clamp01(t / tweenDuration);
+            slider.value = Mathf.Lerp(from, to, u);
+            yield return null;
+        }
+        slider.value = to;
     }
 
     void OnOffInventory()
@@ -297,6 +357,10 @@ public class UiManager : MonoBehaviour
         }
     }
 
+    public void OnClickEquip()
+    {
+        
+    }
     public void OnClickDrop()
     {
         if (_selectedSlot == null) return;
@@ -304,7 +368,7 @@ public class UiManager : MonoBehaviour
         playerInv.RemoveItem(item, 1);
     }
 
-    private void ShowItemInfo(Slot slot)
+    private void ShowItemInfo(Slot slot )
     {
         selectedItemName.text = slot.ItemData.displayName;
         selectedItemDescription.text = slot.ItemData.description;

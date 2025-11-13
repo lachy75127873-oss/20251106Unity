@@ -33,6 +33,7 @@ public class PlayerCondition : MonoBehaviour
         
         InitConditions();
     }
+    
 
     private void Start()
     {
@@ -43,13 +44,13 @@ public class PlayerCondition : MonoBehaviour
     public void InitConditions()
     {
         health.maxValue =  healthMax;
-        health.curValue = healthMax;
+        health.curValue = healthMax*0.6f;
         
         hunger.maxValue =  hungerMax;
-        hunger.curValue = hungerMax;
+        hunger.curValue = hungerMax*0.6f;
         
         stamina.maxValue =  staminaMax;
-        stamina.curValue = staminaMax;
+        stamina.curValue = staminaMax*0.6f;
         
         speed.maxValue =  speedMax;
         speed.curValue = speedMax*0.2f;
@@ -59,44 +60,48 @@ public class PlayerCondition : MonoBehaviour
     }
     
 
-    public void Damage(float damage)
+    public void NotifyUI()
     {
-        health.curValue -= damage;
-        Debug.Log("damage"+damage);
-        Debug.Log($"current health {health.curValue}");
-    }
-    
-    public void HealHealth(float heal)
-    {
-        float after =  health.curValue + heal;
-        float newHealth = Mathf.Min(after, healthMax);
-        health.curValue = newHealth;
+        if (UiManager.Instance == null) return;
+
+        float h  = health.curValue  / healthMax;
+        float s  = stamina.curValue / staminaMax;
+        float hu = hunger.curValue  / hungerMax;
+
+        UiManager.Instance.UpdateStatUI(h, s, hu); // 0~1 비율 전달
     }
 
-    public void HealStamina(float heal)
+    public void Damage(float dmg)
     {
-        float after =  stamina.curValue + heal;
-        float newStamina = Mathf.Min(after, staminaMax);
-        stamina.curValue = newStamina;
+        health.curValue = Mathf.Clamp(health.curValue - dmg, 0, healthMax);
+        NotifyUI();
     }
 
-    public void HealHunger(float heal)
+    public void HealHealth(float v)
     {
-        float after =  hunger.curValue + heal;
-        float newHunger = Mathf.Min(after, hungerMax);
-        hunger.curValue = newHunger;
+        health.curValue = Mathf.Clamp(health.curValue + v, 0, healthMax);
+        NotifyUI();
     }
-
-    public void SpeedUp(float s)
+    public void HealStamina(float v)
     {
-        float after =  speed.curValue + s;
-        speed.curValue = after < speedMax ? after : speedMax;
+        stamina.curValue = Mathf.Clamp(stamina.curValue + v, 0, staminaMax);
+        NotifyUI();
     }
-
-    public void JumpUp(float j)
+    public void HealHunger(float v)
     {
-        float after =  jump.curValue + j;
-        jump.curValue = after < jumpMax ? after: jumpMax;
+        hunger.curValue = Mathf.Clamp(hunger.curValue + v, 0, hungerMax);
+        NotifyUI();
+    }
+    public void SpeedUp(float v)
+    {
+        speed.curValue = Mathf.Clamp(speed.curValue + v, 0, speedMax);
+        // 스피드/점프는 슬라이더 없으면 생략 가능
+        NotifyUI();
+    }
+    public void JumpUp(float v)
+    {
+        jump.curValue = Mathf.Clamp(jump.curValue + v, 0, jumpMax);
+        NotifyUI();
     }
     
     

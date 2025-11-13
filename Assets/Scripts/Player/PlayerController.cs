@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private Animator _animator;
 
-    private BoxCollider _col;
+    private CapsuleCollider _col;
     //private PlayerState _playerState;
 
     [Header("Camera Settings, 1 = 1인팅, 그 외 = 3인칭")] 
@@ -28,7 +28,9 @@ public class PlayerController : MonoBehaviour
     
     [Header("Move")]
     [SerializeField] private float _moveSpeed = 5f; //이동속도
+    [SerializeField] private float basicSpeed = 5f;
     //[SerializeField] private float _turnSpeed = 5f; // 회전속도
+    private PlayerCondition _playerCondition;
     private Vector2 walkInput;
     private Vector2 mouseInput;
     private Vector3 moveLocal;
@@ -43,8 +45,10 @@ public class PlayerController : MonoBehaviour
     
     [Header("Climb")]
     [SerializeField] private LayerMask climbLayerMask;
+    [SerializeField] private float climbSpeed = 3f;
 
     private bool isClimb;
+    private bool isOnLadder;
 
     private void Awake()
     {
@@ -55,13 +59,16 @@ public class PlayerController : MonoBehaviour
         if (_animator == null) Debug.Log("no animator");
         
         Cursor.lockState = CursorLockMode.Locked;
-        _col       = GetComponent<BoxCollider>();
+        _col       = GetComponent<CapsuleCollider>();
+        
+        _playerCondition  = GetComponent<PlayerCondition>();
     }
 
     // Update is called once per frame
     void Update()
     {
         if(GameManager.Instance.InventoryUIOpen) return;
+        if(GameManager.Instance.InformationOpen) return;
         
         LookInput();
         
@@ -129,9 +136,9 @@ public class PlayerController : MonoBehaviour
 
     private void ClimbInput()
     {
-
-        if (CanClimb() && Input.GetMouseButton(0))
+        if (isOnLadder && Input.GetMouseButton(0))
         {
+            Debug.Log("ClimbInput");
             isClimb = true;
         }
         else isClimb = false;
@@ -171,16 +178,17 @@ public class PlayerController : MonoBehaviour
     //     return false;
     // }
 
-    private bool CanClimb()
-    {
-        Ray ray = 
-             new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.forward);
-        bool canClimb = Physics.Raycast(ray, 1f, climbLayerMask);
-        
-        return canClimb;
-
-        //raycast로 벽 검사 && 접촉 여부 검사
-    }
+    // private bool CanClimb()
+    // {
+    //     Ray ray = 
+    //          new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.forward);
+    //     bool canClimb = Physics.Raycast(ray, 1f, climbLayerMask);
+    //     
+    //     if (canClimb) Debug.Log("canClimb");
+    //     return canClimb;
+    //
+    //     //raycast로 벽 검사 && 접촉 여부 검사
+    // }
 
     private void Move()
     {
@@ -202,12 +210,28 @@ public class PlayerController : MonoBehaviour
         canJump = false;
     }
 
-    private void Climb()
+    public void Climb()
     {
-        if (isClimb)
+        
+        if (!isClimb) return;
+        
+        Vector3 climbPos = transform.position + Vector3.up * _moveSpeed * Time.deltaTime;
+        transform.position = climbPos;
+        float v = Input.GetAxisRaw("Vertical");
+        _rigidbody.velocity = new Vector3(0f, v * climbSpeed, 0f);
+    }
+
+    public void SetLadderState(bool  on)
+    {
+        isOnLadder = on;
+        if (on)
         {
-            Vector3 climbPos = transform.position + Vector3.up * _moveSpeed * Time.deltaTime;
-            transform.position = climbPos;
+            _rigidbody.useGravity = false;           
+            _rigidbody.velocity = Vector3.zero;    
+        } 
+        else
+        {
+            _rigidbody.useGravity = true;          
         }
     }
     
