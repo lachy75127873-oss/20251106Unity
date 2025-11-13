@@ -30,7 +30,7 @@ UIManager, GameManager 중심의 싱글톤 구조 설계
 문제: 플레이어와 아이템 상호작용 후 UIManager가 이를 감지하여 정보를 참조해와야 하는 상황에서 참조가 제대로 이뤄지지 않고 에러 발생.
 
 시도: 컴파일 에러가 없는 상황이었기 때문에, UIManager가 붙어있는 객체들의 인스팩터 설정을 점검하고, 디버깅을 시도함.
-<img width="2940" height="1912" alt="image" src="https://github.com/user-attachments/assets/0ee20641-1096-4fcb-b9a5-497c9ff27ee0" />
+<img width="521" height="601" alt="스크린샷 2025-11-13 오후 2 47 58 복사본" src="https://github.com/user-attachments/assets/0007c74d-ac0e-4c26-af63-2f5c7c6ba8b1" />
 
 원인 분석: 디버깅 후 조사 결과, 문제의 원인은 생명주기를 고려하지 않은 초기화 방식이었던 것으로 판명됨.
 과제를 진행하면서 여러개의 매니저가 싱글톤으로 선언된 상태로, 한 씬에 존재하는 상황이 발생했고,
